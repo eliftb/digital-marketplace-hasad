@@ -1,5 +1,6 @@
 package com.pazaryeri.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,10 +32,12 @@ public class Category {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Category> children = new ArrayList<>();
@@ -53,6 +56,7 @@ public class Category {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Product> products = new ArrayList<>();

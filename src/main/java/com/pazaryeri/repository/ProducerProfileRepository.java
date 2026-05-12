@@ -22,7 +22,7 @@ public interface ProducerProfileRepository extends JpaRepository<ProducerProfile
 
     @Query("""
            SELECT pp FROM ProducerProfile pp
-           WHERE (:search IS NULL OR LOWER(pp.storeName) LIKE LOWER(CONCAT('%', :search, '%')))
+           WHERE (:search IS NULL OR pp.storeName LIKE CONCAT('%', :search, '%'))
            AND (:cityId IS NULL OR pp.city.id = :cityId)
            AND (:status IS NULL OR pp.approvalStatus = :status)
            """)

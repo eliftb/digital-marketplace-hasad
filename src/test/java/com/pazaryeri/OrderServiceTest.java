@@ -90,17 +90,7 @@ class OrderServiceTest {
         when(commissionTransactionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
         when(orderRepository.save(any(Order.class))).thenAnswer(inv -> {
             Order o = inv.getArgument(0);
-            o = Order.builder()
-                    .id(1L).consumer(consumer)
-                    .orderNumber("ORD-20250101-ABC12345")
-                    .status(OrderStatus.PENDING)
-                    .deliveryType(DeliveryType.PICKUP)
-                    .subtotal(new BigDecimal("60.00"))
-                    .commissionTotal(new BigDecimal("6.00"))
-                    .shippingFee(BigDecimal.ZERO)
-                    .totalAmount(new BigDecimal("60.00"))
-                    .items(new ArrayList<>())
-                    .build();
+            o.setId(1L);
             return o;
         });
 

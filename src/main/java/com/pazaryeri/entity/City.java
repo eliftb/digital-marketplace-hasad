@@ -2,6 +2,7 @@ package com.pazaryeri.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,5 +14,6 @@ public class City {
     @Column(nullable = false) private String name;
     private String code;
     @OneToMany(mappedBy = "city", fetch = FetchType.LAZY)
+    @JsonIgnore
     @Builder.Default private List<District> districts = new ArrayList<>();
 }

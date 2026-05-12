@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -25,11 +26,13 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Admin", description = "Yonetici islemleri")
 public class AdminController {
     private final AdminService adminService;
+
     @GetMapping("/dashboard")
     @Operation(summary = "Dashboard")
     public ResponseEntity<ApiResponse<DashboardResponse>> getDashboard() {
         return ResponseEntity.ok(ApiResponse.success(adminService.getDashboard()));
     }
+
     @GetMapping("/users")
     @Operation(summary = "Kullanicilar")
     public ResponseEntity<ApiResponse<PageResponse<AuthResponse.UserDto>>> getAllUsers(
@@ -41,6 +44,7 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(ApiResponse.success(adminService.getAllUsers(role, status, search, pageable)));
     }
+
     @PostMapping("/users/{userId}/ban")
     @Operation(summary = "Ban")
     public ResponseEntity<ApiResponse<String>> banUser(
@@ -49,6 +53,7 @@ public class AdminController {
         adminService.banUser(userId, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.successMessage("Kullanici banlandi"));
     }
+
     @PostMapping("/users/{userId}/activate")
     @Operation(summary = "Aktifestir")
     public ResponseEntity<ApiResponse<String>> activateUser(
@@ -57,11 +62,24 @@ public class AdminController {
         adminService.activateUser(userId, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.successMessage("Kullanici aktiflestirildi"));
     }
+
+    @PatchMapping("/users/{userId}/role")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @Operation(summary = "Kullanici rolunu degistir (sadece SUPER_ADMIN)")
+    public ResponseEntity<ApiResponse<AuthResponse.UserDto>> changeUserRole(
+            @PathVariable Long userId,
+            @RequestParam UserRole role,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.success(
+                adminService.changeUserRole(userId, role, userDetails.getUsername())));
+    }
+
     @GetMapping("/settings/{key}")
     @Operation(summary = "Ayar getir")
     public ResponseEntity<ApiResponse<String>> getSetting(@PathVariable String key) {
         return ResponseEntity.ok(ApiResponse.success(adminService.getPlatformSetting(key)));
     }
+
     @PutMapping("/settings/{key}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Operation(summary = "Ayar guncelle")

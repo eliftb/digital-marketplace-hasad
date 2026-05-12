@@ -12,6 +12,7 @@ public interface AdminService {
     PageResponse<AuthResponse.UserDto> getAllUsers(UserRole role, AccountStatus status, String search, Pageable pageable);
     void banUser(Long userId, String adminEmail);
     void activateUser(Long userId, String adminEmail);
+    AuthResponse.UserDto changeUserRole(Long userId, UserRole role, String adminEmail);
     void updatePlatformSetting(String key, String value, String adminEmail);
     String getPlatformSetting(String key);
 }

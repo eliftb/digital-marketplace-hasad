@@ -130,8 +130,13 @@ public class ProductServiceImpl implements ProductService {
     public PageResponse<ProductResponse> searchProducts(String search, Long categoryId, Long cityId,
                                                          DeliveryType deliveryType, BigDecimal minPrice,
                                                          BigDecimal maxPrice, Pageable pageable) {
-        Page<Product> page = productRepository.searchProducts(search, categoryId, cityId,
-                deliveryType, minPrice, maxPrice, pageable);
+        String normalizedSearch = search == null ? null : search.trim().toLowerCase(Locale.ROOT);
+        Page<Product> page = normalizedSearch == null || normalizedSearch.isBlank()
+                ? productRepository.searchProducts(AccountStatus.ACTIVE, DeliveryType.BOTH,
+                        categoryId, cityId, deliveryType, minPrice, maxPrice, pageable)
+                : productRepository.searchProductsWithKeyword("%" + normalizedSearch + "%",
+                        AccountStatus.ACTIVE, DeliveryType.BOTH,
+                        categoryId, cityId, deliveryType, minPrice, maxPrice, pageable);
         return PageResponse.of(page.map(this::toResponse));
     }
 

@@ -56,7 +56,7 @@ public class Product {
     private Integer minOrderQuantity = 1;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_type", columnDefinition = "delivery_type")
+    @Column(name = "delivery_type", nullable = false)
     @Builder.Default
     private DeliveryType deliveryType = DeliveryType.BOTH;
 

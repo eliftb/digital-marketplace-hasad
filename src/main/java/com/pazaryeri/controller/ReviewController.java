@@ -62,6 +62,18 @@ public class ReviewController {
     }
 
     // ---- Admin ----
+    @GetMapping("/admin")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Tüm değerlendirmeler (Admin)")
+    public ResponseEntity<ApiResponse<PageResponse<ReviewResponse>>> getAllReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(ApiResponse.success(
+                reviewService.getAllReviews(PageRequest.of(page, size,
+                        Sort.by("createdAt").descending()))));
+    }
+
     @GetMapping("/admin/pending")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @SecurityRequirement(name = "bearerAuth")

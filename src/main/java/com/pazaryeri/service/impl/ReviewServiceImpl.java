@@ -90,6 +90,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
+    public PageResponse<ReviewResponse> getAllReviews(Pageable pageable) {
+        return PageResponse.of(reviewRepository.findAll(pageable).map(this::toResponse));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PageResponse<ReviewResponse> getPendingReviews(Pageable pageable) {
         return PageResponse.of(
                 reviewRepository.findByApprovedFalse(pageable).map(this::toResponse)

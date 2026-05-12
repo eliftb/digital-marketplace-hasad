@@ -12,15 +12,19 @@ import com.pazaryeri.exception.BusinessException;
 import com.pazaryeri.exception.ResourceNotFoundException;
 import com.pazaryeri.repository.*;
 import com.pazaryeri.service.AdminService;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +70,32 @@ public class AdminServiceImpl implements AdminService {
     @Transactional(readOnly = true)
     public PageResponse<AuthResponse.UserDto> getAllUsers(UserRole role, AccountStatus status,
                                                           String search, Pageable pageable) {
-        Page<User> page = userRepository.searchUsers(search, role, status, pageable);
+        // JpaSpecificationExecutor ile dinamik filtre - PostgreSQL bytea sorunu yok
+        Specification<User> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (search != null && !search.isBlank()) {
+                String pattern = "%" + search.toLowerCase() + "%";
+                predicates.add(cb.or(
+                    cb.like(cb.lower(root.get("email")), pattern),
+                    cb.like(cb.lower(root.get("firstName")), pattern),
+                    cb.like(cb.lower(root.get("lastName")), pattern)
+                ));
+            }
+
+            if (role != null) {
+                predicates.add(cb.equal(root.get("role"), role));
+            }
+
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+
+            return predicates.isEmpty() ? cb.conjunction()
+                    : cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<User> page = userRepository.findAll(spec, pageable);
         return PageResponse.of(page.map(this::toUserDto));
     }
 
@@ -94,6 +123,20 @@ public class AdminServiceImpl implements AdminService {
         user.setStatus(AccountStatus.ACTIVE);
         userRepository.save(user);
         log.info("Kullanıcı aktifleştirildi: {} - Admin: {}", user.getEmail(), adminEmail);
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse.UserDto changeUserRole(Long userId, UserRole role, String adminEmail) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı", userId));
+        if (user.getEmail().equals(adminEmail)) {
+            throw new BusinessException("Kendi rolünüzü değiştiremezsiniz");
+        }
+        user.setRole(role);
+        userRepository.save(user);
+        log.info("Kullanıcı rolü değiştirildi: {} → {} - Admin: {}", user.getEmail(), role, adminEmail);
+        return toUserDto(user);
     }
 
     @Override

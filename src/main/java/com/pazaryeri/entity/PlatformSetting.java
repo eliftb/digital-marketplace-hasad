@@ -13,8 +13,8 @@ public class PlatformSetting {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true) private String key;
-    @Column(nullable = false, columnDefinition = "TEXT") private String value;
+    @Column(name = "setting_key", nullable = false, unique = true) private String key;
+    @Column(name = "setting_value", nullable = false, columnDefinition = "TEXT") private String value;
     @Column(columnDefinition = "TEXT") private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

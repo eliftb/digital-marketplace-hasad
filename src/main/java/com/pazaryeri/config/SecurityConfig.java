@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/producers/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/cities/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/reviews/product/**").permitAll()
 
                 // Admin only
                 .requestMatchers("/admin/**").hasAnyRole("SUPER_ADMIN", "ADMIN")

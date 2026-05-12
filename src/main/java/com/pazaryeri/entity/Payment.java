@@ -22,7 +22,7 @@ public class Payment {
     @Column(nullable = false) private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "payment_status")
+    @Column(nullable = false)
     @Builder.Default private PaymentStatus status = PaymentStatus.PENDING;
 
     private String method;

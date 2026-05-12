@@ -62,7 +62,7 @@ public class ProducerProfile {
     private BigDecimal commissionRate = new BigDecimal("10.00");
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "approval_status", columnDefinition = "account_status")
+    @Column(name = "approval_status", nullable = false)
     @Builder.Default
     private AccountStatus approvalStatus = AccountStatus.PENDING_APPROVAL;
 

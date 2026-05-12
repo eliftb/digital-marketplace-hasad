@@ -134,8 +134,18 @@ public class ProducerServiceImpl implements ProducerService {
     @Transactional(readOnly = true)
     public PageResponse<ProducerProfileResponse> searchProducers(String search, Long cityId,
                                                                   AccountStatus status, Pageable pageable) {
-        Page<ProducerProfile> page = producerProfileRepository.searchProducers(search, cityId, status, pageable);
-        return PageResponse.of(page.map(this::toResponse));
+        // LOWER() bytea sorunu nedeniyle Java tarafında filtreleme yapıyoruz
+        Page<ProducerProfile> all = producerProfileRepository.findAll(pageable);
+        java.util.List<ProducerProfile> filtered = all.getContent().stream()
+            .filter(p -> search == null || search.isBlank() ||
+                (p.getStoreName() != null && p.getStoreName().toLowerCase().contains(search.toLowerCase())))
+            .filter(p -> cityId == null ||
+                (p.getCity() != null && p.getCity().getId().equals(cityId)))
+            .filter(p -> status == null || status.equals(p.getApprovalStatus()))
+            .toList();
+        org.springframework.data.domain.Page<ProducerProfile> result =
+            new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
+        return PageResponse.of(result.map(this::toResponse));
     }
 
     @Override

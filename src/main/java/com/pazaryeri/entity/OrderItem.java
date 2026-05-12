@@ -53,7 +53,7 @@ public class OrderItem {
     private BigDecimal subtotal;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "order_status")
+    @Column(nullable = false)
     @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 

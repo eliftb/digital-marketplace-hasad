@@ -11,6 +11,7 @@ import com.pazaryeri.repository.RefreshTokenRepository;
 import com.pazaryeri.repository.UserRepository;
 import com.pazaryeri.security.JwtService;
 import com.pazaryeri.security.UserDetailsServiceImpl;
+import com.pazaryeri.service.EmailService;
 import com.pazaryeri.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ class AuthServiceTest {
     @Mock private UserDetailsServiceImpl userDetailsService;
     @Mock private AuthenticationManager authenticationManager;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private EmailService emailService;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -77,6 +79,7 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals("mock-jwt-token", response.getAccessToken());
         verify(userRepository).save(any());
+        verify(emailService).sendWelcomeEmail("test@example.com", "Test User");
     }
 
     @Test

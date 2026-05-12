@@ -120,7 +120,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void searchProducts_shouldReturnPagedResults() {
+    void searchProducts_whenKeywordProvided_shouldUseKeywordSearch() {
         Product p = Product.builder()
                 .id(1L).name("Domates").slug("domates")
                 .price(new BigDecimal("15.00")).stockQuantity(50).active(true)
@@ -129,7 +129,8 @@ class ProductServiceTest {
                 .producerProfile(producerProfile).category(category)
                 .images(List.of()).build();
 
-        when(productRepository.searchProducts(any(), any(), any(), any(), any(), any(), any()))
+        when(productRepository.searchProductsWithKeyword(eq("%domates%"), eq(AccountStatus.ACTIVE),
+                eq(DeliveryType.BOTH), isNull(), isNull(), isNull(), isNull(), isNull(), any()))
                 .thenReturn(new PageImpl<>(List.of(p)));
 
         PageResponse<ProductResponse> result = productService.searchProducts(
@@ -138,5 +139,40 @@ class ProductServiceTest {
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getName()).isEqualTo("Domates");
+        verify(productRepository).searchProductsWithKeyword(eq("%domates%"), eq(AccountStatus.ACTIVE),
+                eq(DeliveryType.BOTH), isNull(), isNull(), isNull(), isNull(), isNull(), any());
+        verify(productRepository, never()).searchProducts(any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void searchProducts_whenKeywordNull_shouldUseFilterSearchWithoutKeyword() {
+        when(productRepository.searchProducts(eq(AccountStatus.ACTIVE), eq(DeliveryType.BOTH),
+                isNull(), isNull(), isNull(), isNull(), isNull(), any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        PageResponse<ProductResponse> result = productService.searchProducts(
+                null, null, null, null, null, null,
+                PageRequest.of(0, 10));
+
+        assertThat(result.getContent()).isEmpty();
+        verify(productRepository).searchProducts(eq(AccountStatus.ACTIVE), eq(DeliveryType.BOTH),
+                isNull(), isNull(), isNull(), isNull(), isNull(), any());
+        verify(productRepository, never()).searchProductsWithKeyword(any(), any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void searchProducts_whenKeywordBlank_shouldUseFilterSearchWithoutKeyword() {
+        when(productRepository.searchProducts(eq(AccountStatus.ACTIVE), eq(DeliveryType.BOTH),
+                isNull(), isNull(), isNull(), isNull(), isNull(), any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        PageResponse<ProductResponse> result = productService.searchProducts(
+                "   ", null, null, null, null, null,
+                PageRequest.of(0, 10));
+
+        assertThat(result.getContent()).isEmpty();
+        verify(productRepository).searchProducts(eq(AccountStatus.ACTIVE), eq(DeliveryType.BOTH),
+                isNull(), isNull(), isNull(), isNull(), isNull(), any());
+        verify(productRepository, never()).searchProductsWithKeyword(any(), any(), any(), any(), any(), any(), any(), any(), any());
     }
 }

@@ -40,12 +40,12 @@ public class User {
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "user_role")
+    @Column(nullable = false)
     @Builder.Default
     private UserRole role = UserRole.CONSUMER;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "account_status")
+    @Column(nullable = false)
     @Builder.Default
     private AccountStatus status = AccountStatus.ACTIVE;
 

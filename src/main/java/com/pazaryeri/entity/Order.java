@@ -34,12 +34,12 @@ public class Order {
     private String orderNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "order_status")
+    @Column(nullable = false)
     @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_type", columnDefinition = "delivery_type")
+    @Column(name = "delivery_type", nullable = false)
     private DeliveryType deliveryType;
 
     @ManyToOne(fetch = FetchType.LAZY)
